@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <script src="./node_modules/chart.js/dist/Chart.min.js"></script>
+        <!-- <script src="./js/bundle.js"></script> -->
+        <link rel="stylesheet" href="src/reset.css">
+        <link rel="stylesheet" href="src/styles.css">
+        <script>
+          const colorGraph = 'rgba(172,172,172,0.7)';
+          const colorText = 'rgb(255,255,255)';
+          const colorLines = 'rgb(255,255,255)';
+        </script>
+    </head>
+
+    <body>
+        <div class="form">
+            <div class="left_info">
+                <div class="prepod_face_and_name" id="prepod">
+                    <div class="img_container">
+                        <img class="prepod_face" src="data/sample.jpg" alt="Prepod's face" id="prepod-face">
+                    </div>
+                    <h1 class="prepod_name" id='prepod-name'>зав. каф. Селіванов В. Л.</h1>
+                </div>
+                <div class="general_numbers">
+                    <div>
+                        <p class="characteristic_num contract_percent" id="contract-percent">25%</p>
+                        <p class="characteristic_desc">опитаних вважають, що КПІ варто продовжити контракт з цим викладачем</p>
+                    </div>
+                    <div class="graphs">
+                      <div>
+                        <p class="characteristic_num2 listening_num contract_percent" id="cheating">75%</p>
+                        <p class="characteristic_desc2  dist_questions">вважають, що предмет можливо закрити без знань</p>
+                      </div>
+                      <div>
+                        <p class="characteristic_num2 listening_num contract_percent" id="rso">75%</p>
+                        <p class="characteristic_desc2 dist_questions">було відомо РСО</p>
+                      </div>
+                    </div>
+                    <div class="graphs">
+                      <div>
+                        <p class="characteristic_num2 listening_num" id="dist1">5.0</p>
+                        <p class="characteristic_desc2 dist_questions">проведеня лекцій дистанційсно</p>
+                      </div>
+                      <div>
+                        <p class="characteristic_num2 listening_num" id="dist2">1.1</p>
+                        <p class="characteristic_desc2 dist_questions">підтримка зв'язку дистанційно</p>
+                      </div>
+                    </div>
+                    <div id="respondents_div">
+                        <p class="characteristic_num3" id="respondents">50</p>
+                        <p class="characteristic_desc3" id="desc_resp">кількість опитаних</p>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="right_info">
+                <div class="radial">
+                    <canvas id="radial_diagram"></canvas>
+                </div>
+                <div class="graphs">
+                    <div class="graph_education">
+                        <div class="helper_div">
+                            <canvas class="graph" id="education_rate"></canvas>
+                        </div>
+                        <p class="education_level">Рівень задоволення викладанням дисципліни</p>
+                    </div>
+                    <div class="graph_education">
+                        <div class="helper_div">
+                            <canvas class="graph" id="knowledge_rate"></canvas>
+                        </div>
+                        <p class="education_level">Оцінка власних знань після проходження курсу</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="popup" id="popup">
+            <div class="manage_zone">
+                <div id="drop_zone">Drop files here</div>
+                <form action="/submit" method="GET">
+                    <textarea name="URL table" id="table-URL" placeholder="Prepod table URL"></textarea>
+                    <textarea name="URL prepods table" id="table-prepods-URL" placeholder="Prepods table URL (with pictures)">https://docs.google.com/spreadsheets/d/1BgMezU3Thg9Om3stZWr3vYdvcED5anRk2bTvvEbyZMw/edit#gid=0</textarea>
+                    <input type="button" id="draw-button" value="Draw!" onclick="ajax()"/>
+                    <h1 id="confidence-interval">Confidence interval: </h1>
+                </form>
+                <button onclick="togglePopup()" id="popup-button">Скрыть</button>
+            </div>
+
+            <output id="list"></output>
+        </div>
+        <script>
+            let activePopup = true;
+            const togglePopup = () => {
+
+              if (activePopup === true) {
+                document.getElementById('popup').style.display = 'none';
+              }
+              else {
+                document.getElementById('popup').style.display = 'flex';
+              }
+
+              activePopup = !activePopup;
+
+            }
+        </script>
+        <script src="src/radial.js"></script>
+        <script src="src/linear.js"></script>
+        <script src="src/numbers.js"></script>
+        <script src="src/prepod.js"></script>
+        <script src="src/ajax.js"></script>
+        <script>
+          linearDiagram(("education_rate"), Array(5).fill(0).map(() => Math.random() * 50));
+          linearDiagram(("knowledge_rate"), Array(5).fill(0).map(() => Math.random() * 100));
+          radialDiagram();
+          updateNumbers(Math.round(Math.random() * 100),
+            Math.round(Math.random() * 100),
+            Math.round(Math.random() * 100),
+            Math.round(Math.random() * 100),
+              Math.round(Math.random() * 5),
+                Math.round(Math.random() * 5)
+          );
+          updatePrepod('зав. каф. Селіванов В. Л.', 'https://i.ylilauta.org/d5/cf733e78.jpg');
+        </script>
+        <script>
+          function handleFileSelect(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            const files = evt.dataTransfer.files;
+            const reader = new FileReader();
+            reader.onload = e => {
+              const json = JSON.parse(e.target.result);
+              console.log("index", json)
+              const educationValues = [];
+              Object.entries(json.задоволення_відповіді).forEach(([key, val]) => {
+                educationValues[parseInt(key)] = val
+              })
+              linearDiagram(("education_rate"), educationValues);
+
+              const knowledgeValues = [];
+              Object.entries(json.самооцінка_відповіді).forEach(([key, val]) => {
+                knowledgeValues[parseInt(key) - 1] = val
+              })
+              linearDiagram(("knowledge_rate"), knowledgeValues);
+
+              const radialData = [
+                json.доступність_матеріалів + 1,
+                json.перелік_питань + 1,
+                json.відповідність_завдань + 1,
+                json.РСО + 1,
+                json.перенесення + 1,
+                json.організація_часу + 1,
+                json.змістовна_якість + 1,
+                json.вимогливість + 1,
+                json.коректність + 1,
+                json.інформування + 1,
+                json.задоволення + 1
+              ];
+
+              radialDiagram(radialData);
+
+              updateNumbers(Math.round(json.подовження_контракту * 10) / 10,
+                Math.round(json.викладача_чути * 10) / 10,
+                json.опитаних,
+                100
+              );
+
+              updatePrepod(json.name, 'https://lh3.googleusercontent.com/proxy/JFvdenv0zHFWigafsML_mQr6Cuk4zCPXKX-c70gB1VH_hoKCaZK3g2aiUvdTJ_uATClQ738ZJvq1yKFvhUk3ocT5IAUImjLRKy8')
+            };
+            for (let i = 0, f; f = files[i]; i++) {
+              reader.readAsText(f);
+            }
+          }
+
+          function handleDragOver(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+          }
+
+          // Setup the dnd listeners.
+          const dropZone = document.getElementById('drop_zone');
+          dropZone.addEventListener('dragover', handleDragOver, false);
+          dropZone.addEventListener('drop', handleFileSelect, false);
+        </script>
+    </body>
+
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "prepodstat",
+  "version": "0.0.1",
+  "description": "Prepod Stats",
+  "main": "index.html",
+  "dependencies": {
+    "chart.js": "^2.9.3",
+    "googleapis": "^51.0.0",
+    "hot-formula-parser": "^3.0.2",
+    "node-correlation": "^1.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ALEGATOR1209/prepodStat.git"
+  },
+  "author": "ALEGATOR1209",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ALEGATOR1209/prepodStat/issues"
+  },
+  "homepage": "https://github.com/ALEGATOR1209/prepodStat#readme"
+}
